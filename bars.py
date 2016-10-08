@@ -1,11 +1,9 @@
-"""
-devmanorg bars
-"""
-
-from __future__ import print_function
+#!/usr/bin/env python3
 
 import json
 import os
+import argparse
+import sys
 
 
 def load_data(filepath):
@@ -17,27 +15,15 @@ def load_data(filepath):
 
 
 def get_biggest_bar(data):
-    bigg_seats_num = data[0]["Cells"]["SeatsCount"]
-    bigg_bar_name = data[0]["Cells"]["Name"]
+    _max = max(data, key=lambda it: it["Cells"]["SeatsCount"])
 
-    for bar in data:
-        if bar["Cells"]["SeatsCount"] > bigg_seats_num:
-            bigg_seats_num = bar["Cells"]["SeatsCount"]
-            bigg_bar_name = bar["Cells"]["Name"]
-
-    return bigg_bar_name
+    return _max["Cells"]
 
 
 def get_smallest_bar(data):
-    small_seats_num = data[0]["Cells"]["SeatsCount"]
-    small_bar_name = data[0]["Cells"]["Name"]
+    _min = min(data, key=lambda it: it["Cells"]["SeatsCount"])
 
-    for bar in data:
-        if bar["Cells"]["SeatsCount"] < small_seats_num:
-            small_seats_num = bar["Cells"]["SeatsCount"]
-            small_bar_name = bar["Cells"]["Name"]
-
-    return small_bar_name
+    return _min["Cells"]
 
 
 def _distance(a1, b1, a2, b2):
@@ -64,20 +50,74 @@ def get_closest_bar(data, longitude, latitude):
             min_distance = _bar_distance
             closest_bar_cells = bar["Cells"]
 
-    return closest_bar_cells["Name"], closest_bar_cells["Address"]
+    return closest_bar_cells
 
 
-if __name__ == '__main__':
-    print (get_biggest_bar(load_data("moscow_bars.json")))
-    print (get_smallest_bar(load_data("moscow_bars.json")))
+def _input_user_coordinates():
+    long_lat = input("Enter your coordinates (longitude and latitude): ")
+    return map(float, long_lat.split())
 
-    user_longitude = float(input("Longitude: "))
-    user_latitude = float(input("Latitude: "))
+def _question_user(question):
+    # print \n to separate question
+    print()
 
-    closest_bar = (get_closest_bar(
-        load_data("moscow_bars.json"),
-        user_longitude,
-        user_latitude
+    answer = ""
+    while answer not in ("y", "n"):
+        answer = input(question + " (y/n) ")
+
+    return answer == "y"
+
+
+def main():
+    description = """Get the biggest and smallest bar in Moscow.
+    Get the closest bar to any location.
+    """
+
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument(
+        "-f", "--filename",
+        help="File with JSON data about Moscow bars",
+        required=True
+    )
+
+    args = parser.parse_args()
+
+    data = load_data(args.filename)
+    if data is None:
+        print ("File {0} does not exists".format(args.filename))
+        sys.exit(1)
+
+    biggest_bar = get_biggest_bar(data)
+    smallest_bar = get_smallest_bar(data)
+
+    print("BIGGEST BAR: {0} ({1} seats)".format(
+        biggest_bar["Name"],
+        biggest_bar["SeatsCount"]
     ))
 
-    print (closest_bar[0])
+    print("SMALLEST BAR: {0} ({1} seats)".format(
+        smallest_bar["Name"],
+        smallest_bar["SeatsCount"]
+    ))
+
+    if _question_user("Do you want to know the closest bar?"):
+        correct = False
+        while not correct:
+            try:
+                user_longitude, user_latitude = _input_user_coordinates()
+                correct = True
+            except ValueError:
+                print("Incorrect input. Two numbers required")
+
+        closest_bar = get_closest_bar(
+            data,
+            user_longitude,
+            user_latitude
+        )
+
+        print ("\nCLOSEST BAR: {0} ({1})".format(
+            closest_bar["Name"], closest_bar["Address"]))
+
+
+if __name__ == "__main__":
+    main()
