@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-import json
-import os
-import argparse
 import sys
+import os
+import json
+import argparse
 
 
 def load_data(filepath):
