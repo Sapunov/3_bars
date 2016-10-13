@@ -13,12 +13,12 @@
 ## Использование
 
 ```{r, engine='bash'}
-$ python bars.py -f json_bars.json                                                          
-BIGGEST BAR: Ночной клуб «Орфей» (1000 seats)                                                                     
-SMALLEST BAR: БАР. СОКИ (0 seats)                                                                                 
+$ python bars.py -f json_bars.json
+BIGGEST BAR: Ночной клуб «Орфей» (1000 seats)
+SMALLEST BAR: БАР. СОКИ (0 seats)
 
-Do you want to know the closest bar? (y/n) y                                                                      
-Enter your coordinates (longitude and latitude): 37.607242 55.757926                                              
+Do you want to know the closest bar? (y/n) y
+Enter your coordinates (longitude and latitude): 37.607242 55.757926
 
 CLOSEST BAR: Бар «Стабильная линия» (Большая Никитская улица, дом 12, строение 2)
 ```
